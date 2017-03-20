@@ -1,0 +1,70 @@
+<android.support.v7.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:card_view="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:foreground="?attr/selectableItemBackground"
+    android:layout_width="match_parent"
+    android:layout_height="150dp"
+    android:clickable="true"
+    card_view:cardCornerRadius="3dp"
+    card_view:cardElevation="2dp"
+    android:layout_margin="6dp">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="179dp">
+
+        <ImageView
+            android:id="@+id/img_txt"
+            android:layout_width="49dp"
+            android:layout_height="44dp"
+            android:layout_marginStart="13dp"
+            android:src="@drawable/ic_action_add"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentStart="true"
+            android:layout_marginTop="25dp" />
+
+        <TextView
+            android:id="@+id/max"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignStart="@+id/min"
+            android:layout_alignTop="@+id/img_txt"
+            android:text="10°C"
+            android:textSize="7pt" />
+
+        <TextView
+            android:id="@+id/min"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignBottom="@+id/img_txt"
+            android:layout_marginStart="21dp"
+            android:layout_toEndOf="@+id/img_txt"
+            android:text="-8°C"
+            android:textSize="7pt" />
+
+        <TextView
+            android:id="@+id/city"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="#c2c2c2"
+            android:gravity="center"
+            android:text="上海"
+            android:textSize="8pt"
+            android:textStyle="bold"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentStart="true"
+            android:layout_marginBottom="27dp" />
+
+
+        <TextView
+            android:id="@+id/txt"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_above="@+id/city"
+            android:layout_marginBottom="12dp"
+            android:gravity="center"
+            android:text="晴转多云"
+            android:textSize="8pt" />
+    </RelativeLayout>
+
+</android.support.v7.widget.CardView>
