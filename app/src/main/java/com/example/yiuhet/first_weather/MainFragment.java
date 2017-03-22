@@ -13,6 +13,14 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
+import com.example.yiuhet.first_weather.adapter.CityDataAdapter;
+import com.example.yiuhet.first_weather.model.AsyncUpdate;
+import com.example.yiuhet.first_weather.model.CityWeatherData;
+import com.example.yiuhet.first_weather.util.HttpUtil;
+import com.example.yiuhet.first_weather.util.JsonParse;
+import com.example.yiuhet.first_weather.util.LocationUtils;
+import com.example.yiuhet.first_weather.util.PublicMethod;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -85,7 +93,7 @@ public class MainFragment extends Fragment implements SwipeRefreshLayout.OnRefre
 
     private void getCityData(String string) {
         getActivity().setTitle(string);
-        HefengFetchr.fetchItem(string, new Callback() {
+        HttpUtil.HefengFetchr(string, new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
                 e.printStackTrace();

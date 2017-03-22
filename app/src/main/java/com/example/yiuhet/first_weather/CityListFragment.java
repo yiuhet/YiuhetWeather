@@ -1,34 +1,84 @@
 package com.example.yiuhet.first_weather;
 
-import android.content.Context;
-import android.net.Uri;
+import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.GridLayoutManager;
-import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.Toast;
+
+import com.example.yiuhet.first_weather.adapter.CityListAdapter;
+import com.example.yiuhet.first_weather.db.Cityitem;
+
+import org.litepal.crud.DataSupport;
+
+import java.util.List;
 
 public class CityListFragment extends Fragment {
 
     private RecyclerView recyclerView;
+    CityListAdapter cityListAdapter;
+    private List<Cityitem> cityitemList;
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        cityitemList = DataSupport.findAll(Cityitem.class);
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+    public View onCreateView(LayoutInflater inflater,   ViewGroup container,
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_city_list, container, false);
+        Log.d("life","onCreateView");
         // Inflate the layout for this fragment
         recyclerView = (RecyclerView) rootView.findViewById(R.id.recyclerview_citylist);
         recyclerView.setLayoutManager(new GridLayoutManager(getActivity(),3));
-        CityListAdapter cityListAdapter = new CityListAdapter();
+        cityListAdapter = new CityListAdapter(cityitemList);
+        recyclerView.setHasFixedSize(true);
         recyclerView.setAdapter(cityListAdapter);
+        cityListAdapter.setOnItemClickListener(new CityListAdapter.OnRecyclerViewItemClickListener() {
+            @Override
+            public void onItemClick(View view, String data) {
+                if (data == "add") {
+                    startActivityForResult(new Intent(getContext(),ChooseActivity.class),1);
+
+                } else {
+                    Toast.makeText(getContext(), data, Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
         return rootView;
     }
 
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        switch (resultCode) {
+            case 666:
+                cityListAdapter.addItem(DataSupport.findLast(Cityitem.class));
+                recyclerView.scrollToPosition(0);
+                break;
+            default:
+                break;
+        }
+    }
+
+    @Override
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        Log.d("life","onActivityCreated");
+
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        Log.d("life","onResume");
+    }
 }
