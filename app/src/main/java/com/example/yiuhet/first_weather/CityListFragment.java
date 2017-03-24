@@ -38,6 +38,11 @@ public class CityListFragment extends Fragment {
         View rootView = inflater.inflate(R.layout.fragment_city_list, container, false);
         Log.d("life","onCreateView");
         // Inflate the layout for this fragment
+        initView(rootView);
+
+        return rootView;
+    }
+    private void initView(View rootView) {
         recyclerView = (RecyclerView) rootView.findViewById(R.id.recyclerview_citylist);
         recyclerView.setLayoutManager(new GridLayoutManager(getActivity(),3));
         cityListAdapter = new CityListAdapter(cityitemList);
@@ -48,13 +53,11 @@ public class CityListFragment extends Fragment {
             public void onItemClick(View view, String data) {
                 if (data == "add") {
                     startActivityForResult(new Intent(getContext(),ChooseActivity.class),1);
-
                 } else {
                     Toast.makeText(getContext(), data, Toast.LENGTH_SHORT).show();
                 }
             }
         });
-        return rootView;
     }
 
     @Override

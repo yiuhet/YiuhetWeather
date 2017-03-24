@@ -16,7 +16,18 @@ import android.view.MenuItem;
 import android.widget.Toast;
 
 import com.example.yiuhet.first_weather.model.AsyncUpdate;
+import com.example.yiuhet.first_weather.model.CityWeatherData;
+import com.example.yiuhet.first_weather.util.HttpUtil;
 import com.example.yiuhet.first_weather.util.LocationUtils;
+
+import java.util.concurrent.TimeUnit;
+
+import io.reactivex.functions.Consumer;
+import io.reactivex.functions.Function;
+import io.reactivex.schedulers.Schedulers;
+import okhttp3.OkHttpClient;
+import retrofit2.Retrofit;
+import retrofit2.converter.gson.GsonConverterFactory;
 
 public class MainActivity extends AppCompatActivity{
 
@@ -29,7 +40,6 @@ public class MainActivity extends AppCompatActivity{
         initBar();
         initView();
     }
-
     private void requestPermission() {
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION)
                 != PackageManager.PERMISSION_GRANTED) {

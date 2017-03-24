@@ -17,10 +17,11 @@ import com.example.yiuhet.first_weather.adapter.CityDataAdapter;
 import com.example.yiuhet.first_weather.model.AsyncUpdate;
 import com.example.yiuhet.first_weather.model.CityWeatherData;
 import com.example.yiuhet.first_weather.util.HttpUtil;
-import com.example.yiuhet.first_weather.util.JsonParse;
 import com.example.yiuhet.first_weather.util.LocationUtils;
 import com.example.yiuhet.first_weather.util.PublicMethod;
+import com.google.gson.Gson;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -38,9 +39,9 @@ public class MainFragment extends Fragment implements SwipeRefreshLayout.OnRefre
 
     private RecyclerView recyclerview;
     private SwipeRefreshLayout swiprefreshlayout;
-    private CityWeatherData weatherData = new CityWeatherData();
     private static String LocalCity = "北京";
     String mErrorCode;
+    WeatherInfo weatherInfo;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -76,7 +77,7 @@ public class MainFragment extends Fragment implements SwipeRefreshLayout.OnRefre
                 @Override
                 public void onLocationError(String ErrorCode) {
                     mErrorCode = ErrorCode;
-                    getActivity().setTitle("定位失败...");
+                   // getActivity().setTitle("定位失败...");
                     Log.e("code",ErrorCode);
                 }
             }).start();
@@ -104,10 +105,13 @@ public class MainFragment extends Fragment implements SwipeRefreshLayout.OnRefre
                 String responseData = response.body().string();
                 try {
                     JSONObject jsonBody = new JSONObject(responseData);
-                    weatherData = new JsonParse(jsonBody).parse();
+                    JSONArray HeWeather5JsonArrary = jsonBody.getJSONArray("HeWeather5");
+                    JSONObject WeatherJsonObject = HeWeather5JsonArrary.getJSONObject(0);
+                    Gson gson = new Gson();
+                    weatherInfo =gson.fromJson(WeatherJsonObject.toString(),WeatherInfo.class);
                     setUpAdapter();
-                    if (weatherData != null){
-                        getActivity().setTitle(weatherData.basic_City);
+                    if (weatherInfo != null){
+                        getActivity().setTitle(weatherInfo.basic.city);
                     }
                 } catch (JSONException e) {
                     Toast.makeText(getContext(),"错误：",Toast.LENGTH_LONG).show();
@@ -118,11 +122,12 @@ public class MainFragment extends Fragment implements SwipeRefreshLayout.OnRefre
         });
     }
 
+
     private void setUpAdapter() {
         getActivity().runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                CityDataAdapter cityDataAdapter = new CityDataAdapter(weatherData);
+                CityDataAdapter cityDataAdapter = new CityDataAdapter(weatherInfo);
                 recyclerview.setAdapter(cityDataAdapter);
                 //cityDataAdapter.notifyDataSetChanged();
                 swiprefreshlayout.setRefreshing(false);
