@@ -19,6 +19,7 @@ import com.example.yiuhet.first_weather.model.AsyncUpdate;
 import com.example.yiuhet.first_weather.model.CityWeatherData;
 import com.example.yiuhet.first_weather.util.HttpUtil;
 import com.example.yiuhet.first_weather.util.LocationUtils;
+import com.example.yiuhet.first_weather.util.PublicMethod;
 
 import java.util.concurrent.TimeUnit;
 
@@ -64,7 +65,6 @@ public class MainActivity extends AppCompatActivity{
             }
             @Override
             public void onLocationError(String ErrorCode) {
-
             }
         }).start();
     }

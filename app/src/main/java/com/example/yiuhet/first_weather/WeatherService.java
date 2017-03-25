@@ -2,6 +2,8 @@ package com.example.yiuhet.first_weather;
 
 import com.example.yiuhet.first_weather.model.CityWeatherData;
 
+import org.json.JSONObject;
+
 import io.reactivex.Observable;
 import retrofit2.Call;
 import retrofit2.http.GET;
@@ -13,5 +15,5 @@ import retrofit2.http.Query;
 
 public interface WeatherService {
     @GET("weather")
-    Observable<CityWeatherData> getWeatherData(@Query("city") String city, @Query("key") String apiKey );
+    Observable<WeatherInfoBefore> getWeatherData(@Query("city") String city, @Query("key") String apiKey );
 }

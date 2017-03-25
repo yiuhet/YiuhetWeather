@@ -19,14 +19,24 @@ import com.example.yiuhet.first_weather.model.CityWeatherData;
 import com.example.yiuhet.first_weather.util.HttpUtil;
 import com.example.yiuhet.first_weather.util.LocationUtils;
 import com.example.yiuhet.first_weather.util.PublicMethod;
+import com.example.yiuhet.first_weather.util.RetroFactory;
 import com.google.gson.Gson;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.reactivestreams.Subscriber;
+import org.reactivestreams.Subscription;
 
 import java.io.IOException;
 
+import io.reactivex.Observer;
+import io.reactivex.Scheduler;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.functions.Consumer;
+import io.reactivex.functions.Function;
+import io.reactivex.schedulers.Schedulers;
 import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.Response;
@@ -92,8 +102,42 @@ public class MainFragment extends Fragment implements SwipeRefreshLayout.OnRefre
         swiprefreshlayout.setColorSchemeColors(Color.GREEN,Color.BLUE,Color.RED);
     }
 
-    private void getCityData(String string) {
+    private void getCityData(final String string) {
         getActivity().setTitle(string);
+        RetroFactory.getInstance().getWeatherData(string,RetroFactory.API_KEY)
+                .subscribeOn(Schedulers.io())
+                .map(new Function<WeatherInfoBefore, WeatherInfo>() {
+                    @Override
+                    public WeatherInfo apply(WeatherInfoBefore weatherInfoBefore) throws Exception {
+                        return weatherInfoBefore.WeatherDataService.get(0);
+                    }
+                })
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Observer<WeatherInfo>() {
+                    @Override
+                    public void onSubscribe(Disposable d) {
+
+                    }
+
+                    @Override
+                    public void onNext(WeatherInfo value) {
+                        CityDataAdapter cityDataAdapter = new CityDataAdapter(value);
+                        recyclerview.setAdapter(cityDataAdapter);
+                        cityDataAdapter.notifyDataSetChanged();
+                        PublicMethod.ShowTips(getContext(),"刷新成功");
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        PublicMethod.ShowTips(getContext(),"网络异常");
+                    }
+
+                    @Override
+                    public void onComplete() {
+                        swiprefreshlayout.setRefreshing(false);
+                    }
+                });
+        /*
         HttpUtil.HefengFetchr(string, new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
@@ -119,20 +163,20 @@ public class MainFragment extends Fragment implements SwipeRefreshLayout.OnRefre
                 }
 
             }
-        });
+        });*/
     }
 
 
-    private void setUpAdapter() {
-        getActivity().runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                CityDataAdapter cityDataAdapter = new CityDataAdapter(weatherInfo);
-                recyclerview.setAdapter(cityDataAdapter);
-                //cityDataAdapter.notifyDataSetChanged();
-                swiprefreshlayout.setRefreshing(false);
-            }
-        });
-    }
+//    private void setUpAdapter(WeatherInfo data) {
+//        getActivity().runOnUiThread(new Runnable() {
+//            @Override
+//            public void run() {
+//                CityDataAdapter cityDataAdapter = new CityDataAdapter(data);
+//                recyclerview.setAdapter(cityDataAdapter);
+//                //cityDataAdapter.notifyDataSetChanged();
+//                swiprefreshlayout.setRefreshing(false);
+//            }
+//        });
+//    }
 
 }
