@@ -5,27 +5,38 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.MenuItemCompat;
+import android.support.v4.view.PagerAdapter;
+import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.Toast;
 
+import com.example.yiuhet.first_weather.adapter.MainPagerAdapter;
+import com.example.yiuhet.first_weather.db.Cityitem;
 import com.example.yiuhet.first_weather.model.AsyncUpdate;
 import com.example.yiuhet.first_weather.model.CityWeatherData;
 import com.example.yiuhet.first_weather.util.HttpUtil;
 import com.example.yiuhet.first_weather.util.LocationUtils;
 import com.example.yiuhet.first_weather.util.PublicMethod;
 
+import org.litepal.crud.DataSupport;
+
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import io.reactivex.functions.Consumer;
 import io.reactivex.functions.Function;
 import io.reactivex.schedulers.Schedulers;
+import me.relex.circleindicator.CircleIndicator;
 import okhttp3.OkHttpClient;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
@@ -33,13 +44,19 @@ import retrofit2.converter.gson.GsonConverterFactory;
 public class MainActivity extends AppCompatActivity{
 
     public Toolbar toolbar;
+    private ViewPager mViewPager;
+    String cityName;
+    private List<Cityitem> mCityList;
+    private List<Fragment> mFragmentList = new ArrayList<>();
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        requestPermission();
-        initBar();
+
+        requestPermission();  // 请求权限 bug 初次加载
+        initData();
         initView();
+        initBar();
     }
     private void requestPermission() {
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION)
@@ -55,28 +72,60 @@ public class MainActivity extends AppCompatActivity{
         }
     }
 
+    private void initData() {
+        mCityList = DataSupport.findAll(Cityitem.class);
+        for (int i=0;i<mCityList.size();i++) {
+            mFragmentList.add(MainFragment.newInstance(mCityList.get(i).getCityName()));
+        }
+
+    }
+
     private void initBar() {
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        new LocationUtils(getApplicationContext(), new AsyncUpdate() {
-            @Override
-            public void onFinsh(String city) {
-                toolbar.setTitle(city);
-            }
-            @Override
-            public void onLocationError(String ErrorCode) {
-            }
-        }).start();
+        toolbar.setTitle(mCityList.get(0).getCityName());
+        if (cityName == null) {
+            new LocationUtils(getApplicationContext(), new AsyncUpdate() {
+                @Override
+                public void onFinsh(String city) {
+                    //toolbar.setTitle(city);
+                    cityName = city;
+                }
+                @Override
+                public void onLocationError(String ErrorCode) {
+                }
+            }).start();
+        }
     }
 
 
     private void initView() {
-        MainFragment mainFragment = new MainFragment();
-        Bundle bundle = new Bundle();
-        bundle.putString("LocalCity",toolbar.getTitle().toString());
-        getSupportFragmentManager().beginTransaction()
-                .replace(R.id.content_frame, mainFragment)
-                .commit();
+        mViewPager = (ViewPager) findViewById(R.id.viewpager);
+        MainPagerAdapter mainPagerAdapter = new MainPagerAdapter(getSupportFragmentManager(),mFragmentList);
+        mViewPager.setAdapter(mainPagerAdapter);
+        mViewPager.setCurrentItem(getIntent().getIntExtra("cityPos",0));
+        mViewPager.addOnPageChangeListener(new MyPageChangeListener());
+        CircleIndicator indicator = (CircleIndicator) findViewById(R.id.indicator);
+        indicator.setViewPager(mViewPager);
+        //mainPagerAdapter.registerDataSetObserver(indicator.getDataSetObserver());
+    }
+
+    public class MyPageChangeListener implements ViewPager.OnPageChangeListener {
+
+        @Override
+        public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+
+        }
+
+        @Override
+        public void onPageSelected(int position) {
+            toolbar.setTitle(mCityList.get(position).getCityName());
+        }
+
+        @Override
+        public void onPageScrollStateChanged(int state) {
+
+        }
     }
 
     @Override
@@ -97,7 +146,7 @@ public class MainActivity extends AppCompatActivity{
                 Log.d("ppap",bundle.getString("LocalCity"));
                 mainFragment.setArguments(bundle);
                 getSupportFragmentManager().beginTransaction()
-                        .replace(R.id.content_frame, mainFragment)
+                        .replace(R.id.viewpager, mainFragment)
                         .commit();
                 return true;
             }

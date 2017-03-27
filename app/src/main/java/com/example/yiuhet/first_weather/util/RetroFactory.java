@@ -1,7 +1,6 @@
 package com.example.yiuhet.first_weather.util;
 
-import com.example.yiuhet.first_weather.WeatherService;
-import com.google.gson.Gson;
+import com.example.yiuhet.first_weather.model.WeatherService;
 import com.jakewharton.retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory;
 
 import java.util.concurrent.TimeUnit;

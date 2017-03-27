@@ -7,39 +7,26 @@ import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Toast;
+import android.view.animation.Animation;
 
 import com.example.yiuhet.first_weather.adapter.CityDataAdapter;
 import com.example.yiuhet.first_weather.model.AsyncUpdate;
-import com.example.yiuhet.first_weather.model.CityWeatherData;
-import com.example.yiuhet.first_weather.util.HttpUtil;
+import com.example.yiuhet.first_weather.model.WeatherInfo;
+import com.example.yiuhet.first_weather.model.WeatherInfoBefore;
 import com.example.yiuhet.first_weather.util.LocationUtils;
 import com.example.yiuhet.first_weather.util.PublicMethod;
 import com.example.yiuhet.first_weather.util.RetroFactory;
-import com.google.gson.Gson;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-import org.reactivestreams.Subscriber;
-import org.reactivestreams.Subscription;
-
-import java.io.IOException;
 
 import io.reactivex.Observer;
-import io.reactivex.Scheduler;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
-import io.reactivex.functions.Consumer;
 import io.reactivex.functions.Function;
 import io.reactivex.schedulers.Schedulers;
-import okhttp3.Call;
-import okhttp3.Callback;
-import okhttp3.Response;
 
 /**
  * Created by yiuhet on 2017/3/14.
@@ -49,13 +36,24 @@ public class MainFragment extends Fragment implements SwipeRefreshLayout.OnRefre
 
     private RecyclerView recyclerview;
     private SwipeRefreshLayout swiprefreshlayout;
-    private static String LocalCity = "北京";
+    private String LocalCity;
     String mErrorCode;
     WeatherInfo weatherInfo;
+    Toolbar toolbar;
 
+
+    public static MainFragment newInstance(String city) {
+        MainFragment f = new MainFragment();
+        Bundle bundle = new Bundle();
+        bundle.putString("LocalCity",city);
+        f.setArguments(bundle);
+        return f;
+    }
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        LocalCity = getArguments().getString("LocalCity");
+        Log.d("dada",LocalCity);
     }
 
     @Override
@@ -66,44 +64,32 @@ public class MainFragment extends Fragment implements SwipeRefreshLayout.OnRefre
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        final View view = inflater.inflate(R.layout.fragment_main,container,false);
+        View view = inflater.inflate(R.layout.fragment_main,container,false);
         initView(view);
         initCity();
         return view;
     }
 
     private void initCity() {
-        Bundle bundle = getArguments();
-        if (bundle != null) {
-            LocalCity = bundle.getString("LocalCity");
+        if (LocalCity != null) {
             getCityData(LocalCity);
         } else {
-            new LocationUtils(getContext(), new AsyncUpdate() {
-                @Override
-                public void onFinsh(String city) {
-                    LocalCity = PublicMethod.safeText(city).replaceAll("(?:省|市|自治区|特别行政区|地区|盟)", "");
-                    getCityData(LocalCity);
-                }
-                @Override
-                public void onLocationError(String ErrorCode) {
-                    mErrorCode = ErrorCode;
-                   // getActivity().setTitle("定位失败...");
-                    Log.e("code",ErrorCode);
-                }
-            }).start();
+            PublicMethod.ShowTips(getContext(),"异常");
         }
     }
 
     private void initView(View view) {
+        toolbar = (Toolbar) view.findViewById(R.id.toolbar);
         recyclerview = (RecyclerView) view.findViewById(R.id.recyclerview);
         recyclerview.setLayoutManager(new LinearLayoutManager(getActivity(),LinearLayoutManager.VERTICAL,false));
         swiprefreshlayout = (SwipeRefreshLayout) view.findViewById(R.id.swiperwfreshlayout);
         swiprefreshlayout.setOnRefreshListener(this);
         swiprefreshlayout.setColorSchemeColors(Color.GREEN,Color.BLUE,Color.RED);
+        toolbar = (Toolbar) view.findViewById(R.id.toolbar);
     }
 
     private void getCityData(final String string) {
-        getActivity().setTitle(string);
+        //getActivity().setTitle(string);
         RetroFactory.getInstance().getWeatherData(string,RetroFactory.API_KEY)
                 .subscribeOn(Schedulers.io())
                 .map(new Function<WeatherInfoBefore, WeatherInfo>() {
@@ -118,7 +104,6 @@ public class MainFragment extends Fragment implements SwipeRefreshLayout.OnRefre
                     public void onSubscribe(Disposable d) {
 
                     }
-
                     @Override
                     public void onNext(WeatherInfo value) {
                         CityDataAdapter cityDataAdapter = new CityDataAdapter(value);
@@ -167,7 +152,7 @@ public class MainFragment extends Fragment implements SwipeRefreshLayout.OnRefre
     }
 
 
-//    private void setUpAdapter(WeatherInfo data) {
+    //    private void setUpAdapter(WeatherInfo data) {
 //        getActivity().runOnUiThread(new Runnable() {
 //            @Override
 //            public void run() {

@@ -1,11 +1,8 @@
-package com.example.yiuhet.first_weather;
+package com.example.yiuhet.first_weather.model;
 
-import com.example.yiuhet.first_weather.model.CityWeatherData;
-
-import org.json.JSONObject;
+import com.example.yiuhet.first_weather.model.WeatherInfoBefore;
 
 import io.reactivex.Observable;
-import retrofit2.Call;
 import retrofit2.http.GET;
 import retrofit2.http.Query;
 

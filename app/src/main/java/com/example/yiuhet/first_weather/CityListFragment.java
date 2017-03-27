@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v4.view.ViewPager;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -15,6 +16,7 @@ import android.widget.Toast;
 
 import com.example.yiuhet.first_weather.adapter.CityListAdapter;
 import com.example.yiuhet.first_weather.db.Cityitem;
+import com.example.yiuhet.first_weather.util.PublicMethod;
 
 import org.litepal.crud.DataSupport;
 
@@ -50,11 +52,13 @@ public class CityListFragment extends Fragment {
         recyclerView.setAdapter(cityListAdapter);
         cityListAdapter.setOnItemClickListener(new CityListAdapter.OnRecyclerViewItemClickListener() {
             @Override
-            public void onItemClick(View view, String data) {
-                if (data == "add") {
+            public void onItemClick(View view, int pos) {
+                if (pos == -1) {
                     startActivityForResult(new Intent(getContext(),ChooseActivity.class),1);
                 } else {
-                    Toast.makeText(getContext(), data, Toast.LENGTH_SHORT).show();
+                    Intent i = new Intent(getActivity(),MainActivity.class);
+                    i.putExtra("cityPos",pos);
+                    startActivity(i);
                 }
             }
         });
@@ -67,6 +71,8 @@ public class CityListFragment extends Fragment {
                 cityListAdapter.addItem(DataSupport.findLast(Cityitem.class));
                 recyclerView.scrollToPosition(0);
                 break;
+            case 233:
+                PublicMethod.ShowTips(getContext(), "网络异常");
             default:
                 break;
         }

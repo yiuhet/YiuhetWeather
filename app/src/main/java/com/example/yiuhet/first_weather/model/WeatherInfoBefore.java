@@ -1,5 +1,6 @@
-package com.example.yiuhet.first_weather;
+package com.example.yiuhet.first_weather.model;
 
+import com.example.yiuhet.first_weather.model.WeatherInfo;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
