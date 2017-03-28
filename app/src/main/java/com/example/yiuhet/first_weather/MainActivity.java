@@ -3,13 +3,18 @@ package com.example.yiuhet.first_weather;
 import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.design.widget.NavigationView;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
+import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
@@ -17,6 +22,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.Toast;
 
 import com.example.yiuhet.first_weather.adapter.MainPagerAdapter;
@@ -45,6 +51,8 @@ public class MainActivity extends AppCompatActivity{
 
     public Toolbar toolbar;
     private ViewPager mViewPager;
+    private DrawerLayout mDrawerLayout;
+    private NavigationView mNavigationView;
     String cityName;
     private List<Cityitem> mCityList;
     private List<Fragment> mFragmentList = new ArrayList<>();
@@ -56,6 +64,7 @@ public class MainActivity extends AppCompatActivity{
         requestPermission();  // 请求权限 bug 初次加载
         initData();
         initView();
+        initDrawer();
         initBar();
     }
     private void requestPermission() {
@@ -80,10 +89,48 @@ public class MainActivity extends AppCompatActivity{
 
     }
 
+    private void initView() {
+        mDrawerLayout = (DrawerLayout) findViewById(R.id.main_drawer);
+        mNavigationView = (NavigationView) findViewById(R.id.nav_view);
+        mViewPager = (ViewPager) findViewById(R.id.viewpager);
+        MainPagerAdapter mainPagerAdapter = new MainPagerAdapter(getSupportFragmentManager(),mFragmentList);
+        mViewPager.setAdapter(mainPagerAdapter);
+        mViewPager.setCurrentItem(getIntent().getIntExtra("cityPos",0));
+        mViewPager.addOnPageChangeListener(new MyPageChangeListener());
+        CircleIndicator indicator = (CircleIndicator) findViewById(R.id.indicator);
+        indicator.setViewPager(mViewPager);
+        //mainPagerAdapter.registerDataSetObserver(indicator.getDataSetObserver());
+    }
+
+    private void initDrawer() {
+        if (mNavigationView != null) {
+            mNavigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
+                @Override
+                public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+                    switch (item.getItemId()) {
+                        case R.id.nav_city:
+                            PublicMethod.ShowTips(MainActivity.this,"添加城市");
+                            break;
+                    }
+                    return false;
+                }
+            });
+            mNavigationView.inflateHeaderView(R.layout.nav_header_img);
+        }
+    }
+
     private void initBar() {
+        //状态栏透明
+        if(Build.VERSION.SDK_INT> Build.VERSION_CODES.KITKAT){
+            WindowManager.LayoutParams params = getWindow().getAttributes();
+            params.flags= (WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS|params.flags);
+        }
+
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        toolbar.setTitle(mCityList.get(0).getCityName());
+        if (mCityList.size()!=0) {
+            toolbar.setTitle(mCityList.get(0).getCityName());
+        }
         if (cityName == null) {
             new LocationUtils(getApplicationContext(), new AsyncUpdate() {
                 @Override
@@ -99,16 +146,7 @@ public class MainActivity extends AppCompatActivity{
     }
 
 
-    private void initView() {
-        mViewPager = (ViewPager) findViewById(R.id.viewpager);
-        MainPagerAdapter mainPagerAdapter = new MainPagerAdapter(getSupportFragmentManager(),mFragmentList);
-        mViewPager.setAdapter(mainPagerAdapter);
-        mViewPager.setCurrentItem(getIntent().getIntExtra("cityPos",0));
-        mViewPager.addOnPageChangeListener(new MyPageChangeListener());
-        CircleIndicator indicator = (CircleIndicator) findViewById(R.id.indicator);
-        indicator.setViewPager(mViewPager);
-        //mainPagerAdapter.registerDataSetObserver(indicator.getDataSetObserver());
-    }
+
 
     public class MyPageChangeListener implements ViewPager.OnPageChangeListener {
 

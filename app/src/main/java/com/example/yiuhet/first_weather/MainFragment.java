@@ -52,7 +52,7 @@ public class MainFragment extends Fragment implements SwipeRefreshLayout.OnRefre
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        LocalCity = getArguments().getString("LocalCity");
+        LocalCity = getArguments().getString("LocalCity","哈尔滨");
         Log.d("dada",LocalCity);
     }
 
@@ -79,7 +79,6 @@ public class MainFragment extends Fragment implements SwipeRefreshLayout.OnRefre
     }
 
     private void initView(View view) {
-        toolbar = (Toolbar) view.findViewById(R.id.toolbar);
         recyclerview = (RecyclerView) view.findViewById(R.id.recyclerview);
         recyclerview.setLayoutManager(new LinearLayoutManager(getActivity(),LinearLayoutManager.VERTICAL,false));
         swiprefreshlayout = (SwipeRefreshLayout) view.findViewById(R.id.swiperwfreshlayout);
@@ -110,6 +109,7 @@ public class MainFragment extends Fragment implements SwipeRefreshLayout.OnRefre
                         recyclerview.setAdapter(cityDataAdapter);
                         cityDataAdapter.notifyDataSetChanged();
                         PublicMethod.ShowTips(getContext(),"刷新成功");
+
                     }
 
                     @Override

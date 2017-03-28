@@ -45,6 +45,7 @@ public class CityListFragment extends Fragment {
         return rootView;
     }
     private void initView(View rootView) {
+        Log.d("sdfa",getContext().getCacheDir().toString());
         recyclerView = (RecyclerView) rootView.findViewById(R.id.recyclerview_citylist);
         recyclerView.setLayoutManager(new GridLayoutManager(getActivity(),3));
         cityListAdapter = new CityListAdapter(cityitemList);
