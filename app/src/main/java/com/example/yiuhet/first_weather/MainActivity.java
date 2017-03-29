@@ -2,6 +2,7 @@ package com.example.yiuhet.first_weather;
 
 import android.Manifest;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
@@ -29,9 +30,13 @@ import com.example.yiuhet.first_weather.adapter.MainPagerAdapter;
 import com.example.yiuhet.first_weather.db.Cityitem;
 import com.example.yiuhet.first_weather.model.AsyncUpdate;
 import com.example.yiuhet.first_weather.model.CityWeatherData;
+import com.example.yiuhet.first_weather.model.WeatherInfo;
+import com.example.yiuhet.first_weather.model.WeatherInfoBefore;
 import com.example.yiuhet.first_weather.util.HttpUtil;
 import com.example.yiuhet.first_weather.util.LocationUtils;
 import com.example.yiuhet.first_weather.util.PublicMethod;
+import com.example.yiuhet.first_weather.util.RetroFactory;
+import com.example.yiuhet.first_weather.util.SharedPreferenceUtil;
 
 import org.litepal.crud.DataSupport;
 
@@ -39,6 +44,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
+import io.reactivex.Observable;
+import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.functions.Consumer;
 import io.reactivex.functions.Function;
 import io.reactivex.schedulers.Schedulers;
@@ -53,16 +60,16 @@ public class MainActivity extends AppCompatActivity{
     private ViewPager mViewPager;
     private DrawerLayout mDrawerLayout;
     private NavigationView mNavigationView;
-    String cityName;
+    private String cityName;
     private List<Cityitem> mCityList;
     private List<Fragment> mFragmentList = new ArrayList<>();
+    private SharedPreferenceUtil sharedPreferenceUtil;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
+        sharedPreferenceUtil = new SharedPreferenceUtil(this,"someData");
         requestPermission();  // 请求权限 bug 初次加载
-        initData();
         initView();
         initDrawer();
         initBar();
@@ -81,27 +88,14 @@ public class MainActivity extends AppCompatActivity{
         }
     }
 
-    private void initData() {
-        mCityList = DataSupport.findAll(Cityitem.class);
-        for (int i=0;i<mCityList.size();i++) {
-            mFragmentList.add(MainFragment.newInstance(mCityList.get(i).getCityName()));
-        }
-
-    }
 
     private void initView() {
+
         mDrawerLayout = (DrawerLayout) findViewById(R.id.main_drawer);
         mNavigationView = (NavigationView) findViewById(R.id.nav_view);
         mViewPager = (ViewPager) findViewById(R.id.viewpager);
-        MainPagerAdapter mainPagerAdapter = new MainPagerAdapter(getSupportFragmentManager(),mFragmentList);
-        mViewPager.setAdapter(mainPagerAdapter);
-        mViewPager.setCurrentItem(getIntent().getIntExtra("cityPos",0));
-        mViewPager.addOnPageChangeListener(new MyPageChangeListener());
-        CircleIndicator indicator = (CircleIndicator) findViewById(R.id.indicator);
-        indicator.setViewPager(mViewPager);
-        //mainPagerAdapter.registerDataSetObserver(indicator.getDataSetObserver());
     }
-
+    //初始化侧边菜单事件 --
     private void initDrawer() {
         if (mNavigationView != null) {
             mNavigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
@@ -118,31 +112,70 @@ public class MainActivity extends AppCompatActivity{
             mNavigationView.inflateHeaderView(R.layout.nav_header_img);
         }
     }
-
+    //初始化viewpager适配器 --定位后
+    private void initAdapter() {
+        MainPagerAdapter mainPagerAdapter = new MainPagerAdapter(getSupportFragmentManager(),mFragmentList);
+        mViewPager.setAdapter(mainPagerAdapter);
+        mViewPager.addOnPageChangeListener(new MyPageChangeListener());
+        CircleIndicator indicator = (CircleIndicator) findViewById(R.id.indicator);
+        indicator.setViewPager(mViewPager);
+    }
+    //初始化定位和列表数据
+    private void initData() {
+        //if (cityName == null) {
+            new LocationUtils(getApplicationContext(), new AsyncUpdate() {
+                @Override
+                public void onFinsh(String city) {
+                    RetroFactory.getInstance().getWeatherData(city, RetroFactory.API_KEY)
+                            .subscribeOn(Schedulers.io())
+                            .map(new Function<WeatherInfoBefore, WeatherInfo>() {
+                                @Override
+                                public WeatherInfo apply(WeatherInfoBefore weatherInfoBefore) throws Exception {
+                                    return weatherInfoBefore.WeatherDataService.get(0);
+                                }
+                            })
+                            .observeOn(AndroidSchedulers.mainThread())
+                            .subscribe(new Consumer<WeatherInfo>() {
+                                @Override
+                                public void accept(WeatherInfo weatherInfo) throws Exception {
+                                    if (!DataSupport.isExist(Cityitem.class,"cityName = ?",weatherInfo.basic.city)) {
+                                        Cityitem cityItem = new Cityitem();
+                                        cityItem.setCityName(weatherInfo.basic.city);
+                                        cityItem.setTmpInfo(weatherInfo.dailyForecast.get(0).cond.txtD);
+                                        cityItem.setTmpMin(weatherInfo.dailyForecast.get(0).tmp.min);
+                                        cityItem.setTmpMax(weatherInfo.dailyForecast.get(0).tmp.max);
+                                        cityItem.setCond(weatherInfo.dailyForecast.get(0).cond.codeD);
+                                        cityItem.save();
+                                    }
+                                    mCityList = DataSupport.findAll(Cityitem.class);
+                                    sharedPreferenceUtil.putString("lbs",weatherInfo.basic.city);
+                                    toolbar.setLogo(R.drawable.ic_action_location);
+                                    toolbar.setTitle(mCityList.get(0).getCityName());
+                                    for (int i=0;i<mCityList.size();i++) {
+                                        mFragmentList.add(MainFragment.newInstance(mCityList.get(i).getCityName()));
+                                    }
+                                    initAdapter();
+                                }
+                            });
+                }
+                @Override
+                public void onLocationError(String ErrorCode) {
+                    toolbar.setTitle("定位失败。。。");
+                }
+            }).start();
+    }
+   // }
+    //初始化状态栏和toolbar
     private void initBar() {
         //状态栏透明
         if(Build.VERSION.SDK_INT> Build.VERSION_CODES.KITKAT){
             WindowManager.LayoutParams params = getWindow().getAttributes();
             params.flags= (WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS|params.flags);
         }
-
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        if (mCityList.size()!=0) {
-            toolbar.setTitle(mCityList.get(0).getCityName());
-        }
-        if (cityName == null) {
-            new LocationUtils(getApplicationContext(), new AsyncUpdate() {
-                @Override
-                public void onFinsh(String city) {
-                    //toolbar.setTitle(city);
-                    cityName = city;
-                }
-                @Override
-                public void onLocationError(String ErrorCode) {
-                }
-            }).start();
-        }
+        toolbar.setTitle("定位中...");
+        initData();
     }
 
 
@@ -157,6 +190,10 @@ public class MainActivity extends AppCompatActivity{
 
         @Override
         public void onPageSelected(int position) {
+            toolbar.setLogo(null);
+            if ( sharedPreferenceUtil.getString("lbs","哈尔滨").equals(mCityList.get(position).getCityName())) {
+                toolbar.setLogo(R.drawable.ic_action_location);
+            }
             toolbar.setTitle(mCityList.get(position).getCityName());
         }
 
@@ -164,6 +201,31 @@ public class MainActivity extends AppCompatActivity{
         public void onPageScrollStateChanged(int state) {
 
         }
+    }
+
+    @Override
+    protected void onRestart() {
+        super.onRestart();
+        mCityList = DataSupport.findAll(Cityitem.class);
+        mFragmentList.clear();
+        for (int i=0;i<mCityList.size();i++) {
+            mFragmentList.add(MainFragment.newInstance(mCityList.get(i).getCityName()));
+        }
+        initAdapter();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        Log.d("cccc", String.valueOf(getIntent().getIntExtra("cityPos",0)));
+        mViewPager.setCurrentItem(getIntent().getIntExtra("cityPos",0));
+    }
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        setIntent(intent);
+        getIntent().putExtras(intent);
     }
 
     @Override

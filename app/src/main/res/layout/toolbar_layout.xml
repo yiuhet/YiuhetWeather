@@ -10,5 +10,4 @@
     app:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
     app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
     app:titleTextColor="#ffffff"
-    app:logo="@drawable/ic_action_location"
     app:layout_scrollFlags="scroll|enterAlways"/>

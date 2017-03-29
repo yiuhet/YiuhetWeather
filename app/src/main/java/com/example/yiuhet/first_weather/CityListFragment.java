@@ -45,9 +45,8 @@ public class CityListFragment extends Fragment {
         return rootView;
     }
     private void initView(View rootView) {
-        Log.d("sdfa",getContext().getCacheDir().toString());
         recyclerView = (RecyclerView) rootView.findViewById(R.id.recyclerview_citylist);
-        recyclerView.setLayoutManager(new GridLayoutManager(getActivity(),3));
+        recyclerView.setLayoutManager(new GridLayoutManager(getActivity(),2));
         cityListAdapter = new CityListAdapter(cityitemList);
         recyclerView.setHasFixedSize(true);
         recyclerView.setAdapter(cityListAdapter);
@@ -60,6 +59,7 @@ public class CityListFragment extends Fragment {
                     Intent i = new Intent(getActivity(),MainActivity.class);
                     i.putExtra("cityPos",pos);
                     startActivity(i);
+                    getActivity().finish();
                 }
             }
         });

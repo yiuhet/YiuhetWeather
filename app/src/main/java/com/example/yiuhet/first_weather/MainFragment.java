@@ -101,7 +101,7 @@ public class MainFragment extends Fragment implements SwipeRefreshLayout.OnRefre
                 .subscribe(new Observer<WeatherInfo>() {
                     @Override
                     public void onSubscribe(Disposable d) {
-
+                        swiprefreshlayout.setRefreshing(true);
                     }
                     @Override
                     public void onNext(WeatherInfo value) {
@@ -122,46 +122,8 @@ public class MainFragment extends Fragment implements SwipeRefreshLayout.OnRefre
                         swiprefreshlayout.setRefreshing(false);
                     }
                 });
-        /*
-        HttpUtil.HefengFetchr(string, new Callback() {
-            @Override
-            public void onFailure(Call call, IOException e) {
-                e.printStackTrace();
-            }
 
-            @Override
-            public void onResponse(Call call, Response response) throws IOException {
-                String responseData = response.body().string();
-                try {
-                    JSONObject jsonBody = new JSONObject(responseData);
-                    JSONArray HeWeather5JsonArrary = jsonBody.getJSONArray("HeWeather5");
-                    JSONObject WeatherJsonObject = HeWeather5JsonArrary.getJSONObject(0);
-                    Gson gson = new Gson();
-                    weatherInfo =gson.fromJson(WeatherJsonObject.toString(),WeatherInfo.class);
-                    setUpAdapter();
-                    if (weatherInfo != null){
-                        getActivity().setTitle(weatherInfo.basic.city);
-                    }
-                } catch (JSONException e) {
-                    Toast.makeText(getContext(),"错误：",Toast.LENGTH_LONG).show();
-                    Log.e("tag",e.toString());
-                }
-
-            }
-        });*/
     }
 
-
-    //    private void setUpAdapter(WeatherInfo data) {
-//        getActivity().runOnUiThread(new Runnable() {
-//            @Override
-//            public void run() {
-//                CityDataAdapter cityDataAdapter = new CityDataAdapter(data);
-//                recyclerview.setAdapter(cityDataAdapter);
-//                //cityDataAdapter.notifyDataSetChanged();
-//                swiprefreshlayout.setRefreshing(false);
-//            }
-//        });
-//    }
 
 }
