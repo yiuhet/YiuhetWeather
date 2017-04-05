@@ -1,23 +1,32 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
-
-    <group android:checkableBehavior="single">
-        <item
-            android:id="@+id/nav_city"
-            android:title="添加城市"/>
-        <item
-            android:id="@+id/nav_multi_cities"
-            android:title="界面设置"
-            />
+    <group android:id="@+id/group1"
+        android:checkableBehavior="single">
+        <item android:title="常用功能">
+            <menu>
+                <item
+                    android:id="@+id/nav_search"
+                    android:title="@string/nav_search"
+                    />
+                <item
+                    android:id="@+id/nav_add"
+                    android:title="@string/nav_add"/>
+                <item
+                    android:id="@+id/nav_citymanage"
+                    android:title="@string/nav_citymanage"
+                    />
+            </menu>
+        </item>
+        <item android:title="不常用功能">
+            <menu>
+                <item
+                    android:id="@+id/nav_settings"
+                    android:title="@string/nav_setting"/>
+                <item
+                    android:id="@+id/nav_about"
+                    android:title="@string/nav_about"/>
+            </menu>
+        </item>
     </group>
-    <item android:title="@string/app_name">
-        <menu>
-            <item
-                android:id="@+id/nav_set"
-                android:title="设置"/>
-            <item
-                android:id="@+id/nav_about"
-                android:title="关于"/>
-        </menu>
-    </item>
+
 </menu>

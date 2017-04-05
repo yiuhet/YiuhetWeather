@@ -22,6 +22,8 @@ import com.example.yiuhet.first_weather.util.LocationUtils;
 import com.example.yiuhet.first_weather.util.PublicMethod;
 import com.example.yiuhet.first_weather.util.RetroFactory;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
 import io.reactivex.Observer;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
@@ -34,13 +36,11 @@ import io.reactivex.schedulers.Schedulers;
 
 public class MainFragment extends Fragment implements SwipeRefreshLayout.OnRefreshListener{
 
-    private RecyclerView recyclerview;
-    private SwipeRefreshLayout swiprefreshlayout;
+    @BindView(R.id.recyclerview)
+    RecyclerView recyclerview;
+    @BindView(R.id.swiperwfreshlayout)
+    SwipeRefreshLayout swiprefreshlayout;
     private String LocalCity;
-    String mErrorCode;
-    WeatherInfo weatherInfo;
-    Toolbar toolbar;
-
 
     public static MainFragment newInstance(String city) {
         MainFragment f = new MainFragment();
@@ -65,6 +65,7 @@ public class MainFragment extends Fragment implements SwipeRefreshLayout.OnRefre
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_main,container,false);
+        ButterKnife.bind(this, view) ;
         initView(view);
         initCity();
         return view;
@@ -79,12 +80,9 @@ public class MainFragment extends Fragment implements SwipeRefreshLayout.OnRefre
     }
 
     private void initView(View view) {
-        recyclerview = (RecyclerView) view.findViewById(R.id.recyclerview);
         recyclerview.setLayoutManager(new LinearLayoutManager(getActivity(),LinearLayoutManager.VERTICAL,false));
-        swiprefreshlayout = (SwipeRefreshLayout) view.findViewById(R.id.swiperwfreshlayout);
         swiprefreshlayout.setOnRefreshListener(this);
         swiprefreshlayout.setColorSchemeColors(Color.GREEN,Color.BLUE,Color.RED);
-        toolbar = (Toolbar) view.findViewById(R.id.toolbar);
     }
 
     private void getCityData(final String string) {
@@ -109,9 +107,7 @@ public class MainFragment extends Fragment implements SwipeRefreshLayout.OnRefre
                         recyclerview.setAdapter(cityDataAdapter);
                         cityDataAdapter.notifyDataSetChanged();
                         PublicMethod.ShowTips(getContext(),"刷新成功");
-
                     }
-
                     @Override
                     public void onError(Throwable e) {
                         PublicMethod.ShowTips(getContext(),"网络异常");

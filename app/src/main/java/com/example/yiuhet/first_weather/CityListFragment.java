@@ -4,15 +4,12 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.support.v4.view.ViewPager;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.Toast;
 
 import com.example.yiuhet.first_weather.adapter.CityListAdapter;
 import com.example.yiuhet.first_weather.db.Cityitem;
@@ -22,8 +19,15 @@ import org.litepal.crud.DataSupport;
 
 import java.util.List;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
+import butterknife.Unbinder;
+
 public class CityListFragment extends Fragment {
 
+    @BindView(R.id.recyclerview_citylist)
+    RecyclerView recyclerviewCitylist;
+    Unbinder unbinder;
     private RecyclerView recyclerView;
     CityListAdapter cityListAdapter;
     private List<Cityitem> cityitemList;
@@ -35,18 +39,20 @@ public class CityListFragment extends Fragment {
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater,   ViewGroup container,
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_city_list, container, false);
-        Log.d("life","onCreateView");
+        Log.d("life", "onCreateView");
         // Inflate the layout for this fragment
         initView(rootView);
 
+        unbinder = ButterKnife.bind(this, rootView);
         return rootView;
     }
+
     private void initView(View rootView) {
         recyclerView = (RecyclerView) rootView.findViewById(R.id.recyclerview_citylist);
-        recyclerView.setLayoutManager(new GridLayoutManager(getActivity(),2));
+        recyclerView.setLayoutManager(new GridLayoutManager(getActivity(), 2));
         cityListAdapter = new CityListAdapter(cityitemList);
         recyclerView.setHasFixedSize(true);
         recyclerView.setAdapter(cityListAdapter);
@@ -54,10 +60,10 @@ public class CityListFragment extends Fragment {
             @Override
             public void onItemClick(View view, int pos) {
                 if (pos == -1) {
-                    startActivityForResult(new Intent(getContext(),ChooseActivity.class),1);
+                    startActivityForResult(new Intent(getContext(), ChooseActivity.class), 1);
                 } else {
-                    Intent i = new Intent(getActivity(),MainActivity.class);
-                    i.putExtra("cityPos",pos);
+                    Intent i = new Intent(getActivity(), MainActivity.class);
+                    i.putExtra("cityPos", pos);
                     startActivity(i);
                     getActivity().finish();
                 }
@@ -82,13 +88,19 @@ public class CityListFragment extends Fragment {
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        Log.d("life","onActivityCreated");
+        Log.d("life", "onActivityCreated");
 
     }
 
     @Override
     public void onResume() {
         super.onResume();
-        Log.d("life","onResume");
+        Log.d("life", "onResume");
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        unbinder.unbind();
     }
 }

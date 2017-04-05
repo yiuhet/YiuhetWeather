@@ -15,7 +15,7 @@ public class SharedPreferenceUtil {
     private SharedPreferences.Editor editor;
 
     public SharedPreferenceUtil(Context context, String fileName) {
-        preferences = context.getSharedPreferences(fileName, context.MODE_PRIVATE);
+        preferences = context.getSharedPreferences(fileName, Context.MODE_PRIVATE);
         editor = preferences.edit();
     }
 
@@ -28,12 +28,23 @@ public class SharedPreferenceUtil {
         editor.putBoolean(key, value);
         editor.commit();
     }
+
+    public void putInt(String key, int value) {
+        editor.putInt(key, value);
+        editor.commit();
+    }
+
     public String getString(String key, String defValue) {
         return preferences.getString(key, defValue);
     }
 
     public boolean getBoolean(String key, boolean defValue) {
         return preferences.getBoolean(key, defValue);
+    }
+
+
+    public int getInt(String key, int defValue) {
+        return preferences.getInt(key, defValue);
     }
 
 }

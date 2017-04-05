@@ -4,4 +4,13 @@
 
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="nav_search">城市查询</string>
+    <string name="nav_add">城市添加</string>
+    <string name="nav_citymanage">城市管理</string>
+    <string name="nav_setting">设置</string>
+    <string name="nav_about">关于</string>
+    <string name="title_activity_setting">设置</string>
+    <string name="save_lbs_mode">isLbsOn</string>
+    <string name="save_noti_mode">isNoticeOn</string>
+    <string name="save_refl_mode">timeResflash</string>
 </resources>

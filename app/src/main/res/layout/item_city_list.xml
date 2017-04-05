@@ -30,8 +30,11 @@
 
         <ImageView
             android:id="@+id/img_info"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"/>
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            android:layout_marginEnd="48dp"
+            android:layout_alignBottom="@+id/max"
+            android:layout_alignEnd="@+id/img_add" />
 
         <TextView
             android:id="@+id/min"

@@ -8,7 +8,7 @@
 
     tools:context="com.example.yiuhet.first_weather.CityListActivity">
     <FrameLayout
-        android:id="@+id/frament_citylist"
+        android:id="@+id/fragment_citylist"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
