@@ -11,40 +11,38 @@ import com.example.yiuhet.first_weather.BasicApplication;
 
 public class SharedPreferenceUtil {
 
-    private SharedPreferences preferences;
-    private SharedPreferences.Editor editor;
+    private static SharedPreferences preferences;
+    public  static final String PREF_NAME = "setting";
 
-    public SharedPreferenceUtil(Context context, String fileName) {
-        preferences = context.getSharedPreferences(fileName, Context.MODE_PRIVATE);
-        editor = preferences.edit();
+    public static void setString(Context context,String key, String value) {
+        SharedPreferences sp = context.getSharedPreferences(PREF_NAME,Context.MODE_PRIVATE);
+        sp.edit().putString(key, value).commit();
     }
 
-    public void putString(String key, String value) {
-        editor.putString(key, value);
-        editor.commit();
+    public static void setBoolean(Context context,String key, boolean value) {
+        SharedPreferences sp = context.getSharedPreferences(PREF_NAME,Context.MODE_PRIVATE);
+        sp.edit().putBoolean(key, value).commit();
     }
 
-    public void putBoolean(String key, boolean value) {
-        editor.putBoolean(key, value);
-        editor.commit();
+    public static void setInt(Context context,String key, int value) {
+        SharedPreferences sp = context.getSharedPreferences(PREF_NAME,Context.MODE_PRIVATE);
+        sp.edit().putInt(key, value).commit();
     }
 
-    public void putInt(String key, int value) {
-        editor.putInt(key, value);
-        editor.commit();
+    public static String getString(Context context,String key, String defValue) {
+        SharedPreferences sp = context.getSharedPreferences(PREF_NAME,Context.MODE_PRIVATE);
+        return sp.getString(key, defValue);
     }
 
-    public String getString(String key, String defValue) {
-        return preferences.getString(key, defValue);
-    }
-
-    public boolean getBoolean(String key, boolean defValue) {
-        return preferences.getBoolean(key, defValue);
+    public static boolean getBoolean(Context context,String key, boolean defValue) {
+        SharedPreferences sp = context.getSharedPreferences(PREF_NAME,Context.MODE_PRIVATE);
+        return sp.getBoolean(key, defValue);
     }
 
 
-    public int getInt(String key, int defValue) {
-        return preferences.getInt(key, defValue);
+    public int getInt(Context context,String key, int defValue) {
+        SharedPreferences sp = context.getSharedPreferences(PREF_NAME,Context.MODE_PRIVATE);
+        return sp.getInt(key, defValue);
     }
 
 }

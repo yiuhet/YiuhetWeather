@@ -13,4 +13,7 @@
     <string name="save_lbs_mode">isLbsOn</string>
     <string name="save_noti_mode">isNoticeOn</string>
     <string name="save_refl_mode">timeResflash</string>
+
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
 </resources>

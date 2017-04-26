@@ -1,12 +1,10 @@
 package com.example.yiuhet.first_weather.util;
 
-import android.app.Application;
-import android.content.Context;
-import android.os.FileUriExposedException;
 import android.text.TextUtils;
-import android.util.Log;
 
 import com.example.yiuhet.first_weather.BasicApplication;
+import com.example.yiuhet.first_weather.model.WeatherInfo;
+import com.example.yiuhet.first_weather.model.WeatherInfoBefore;
 import com.example.yiuhet.first_weather.model.WeatherService;
 import com.jakewharton.retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory;
 
@@ -14,6 +12,12 @@ import java.io.File;
 import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 
+import io.reactivex.Flowable;
+import io.reactivex.Observable;
+import io.reactivex.ObservableSource;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.functions.Function;
+import io.reactivex.schedulers.Schedulers;
 import okhttp3.Cache;
 import okhttp3.Interceptor;
 import okhttp3.OkHttpClient;
@@ -29,10 +33,17 @@ import retrofit2.converter.gson.GsonConverterFactory;
 public class RetroFactory {
     public static final String API_KEY = "cb8861667aad4146b752f821dbef4dce";
     public static String baseUrl = "https://free-api.heweather.com/v5/";
+    private static WeatherService retrofitService = null;
+    private static OkHttpClient okHttpClient = null;
     private RetroFactory(){
-    }
+        init();
 
-    private static OkHttpClient getOkHttp() {
+    }
+    private void init() {
+        initOkHttp();
+        initRetrofit();
+    }
+    private static void initOkHttp() {
 
 //        http://blog.csdn.net/u014614038/article/details/51210685 教你如何使用okhttp缓存
         //创建拦截器
@@ -61,26 +72,47 @@ public class RetroFactory {
             }
         };
         //创建OkHttpClient，并添加拦截器和缓存代码
-        OkHttpClient httpClient =builder
+        okHttpClient =builder
                 .cache(cache)
                 .addInterceptor(interceptor)
                 .connectTimeout(5, TimeUnit.SECONDS)
                 .readTimeout(5, TimeUnit.SECONDS)
                 .build();
-        return httpClient;
     }
 
+    private static void initRetrofit(){
+        retrofitService = new Retrofit.Builder()
+                .baseUrl(baseUrl)
+                .addConverterFactory(GsonConverterFactory.create())
+                .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
+                .client(okHttpClient)
+                .build()
+                .create(WeatherService.class);
+    }
 
-    private static WeatherService retrofitService = new Retrofit.Builder()
-            .baseUrl(baseUrl)
-            .addConverterFactory(GsonConverterFactory.create())
-            .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
-            .client(getOkHttp())
-            .build()
-            .create(WeatherService.class);
-
-    //懒汉式单例模式
-    public static WeatherService getInstance() {
+    public WeatherService getRetrofitService() {
         return retrofitService;
     }
+
+    public Observable<WeatherInfo> fetchWeather(String city) {
+        return retrofitService.getWeatherData(city,RetroFactory.API_KEY)
+                //status 状态码分析
+                .map(new Function<WeatherInfoBefore, WeatherInfo>() {
+                    @Override
+                    public WeatherInfo apply(WeatherInfoBefore weatherInfoBefore) throws Exception {
+                        return weatherInfoBefore.WeatherDataService.get(0);
+                    }
+                })
+                .subscribeOn(Schedulers.io())
+                .unsubscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread());
+    }
+    private static class SingletonHolder {
+        private static final RetroFactory INSTANCE = new RetroFactory();
+    }
+
+    public static RetroFactory getInstance() {
+        return SingletonHolder.INSTANCE;
+    }
+
 }

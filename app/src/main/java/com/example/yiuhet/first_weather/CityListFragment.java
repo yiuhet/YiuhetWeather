@@ -13,7 +13,8 @@ import android.view.ViewGroup;
 
 import com.example.yiuhet.first_weather.adapter.CityListAdapter;
 import com.example.yiuhet.first_weather.db.Cityitem;
-import com.example.yiuhet.first_weather.util.PublicMethod;
+import com.example.yiuhet.first_weather.model.WeatherManager;
+import com.example.yiuhet.first_weather.util.Utils;
 
 import org.litepal.crud.DataSupport;
 
@@ -31,11 +32,13 @@ public class CityListFragment extends Fragment {
     private RecyclerView recyclerView;
     CityListAdapter cityListAdapter;
     private List<Cityitem> cityitemList;
+    private WeatherManager mWeatherManager;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        cityitemList = DataSupport.findAll(Cityitem.class);
+        mWeatherManager = WeatherManager.getInstance(getActivity().getApplicationContext());
+        cityitemList = mWeatherManager.getWeatherList();
     }
 
     @Override
@@ -62,8 +65,8 @@ public class CityListFragment extends Fragment {
                 if (pos == -1) {
                     startActivityForResult(new Intent(getContext(), ChooseActivity.class), 1);
                 } else {
-                    Intent i = new Intent(getActivity(), MainActivity.class);
-                    i.putExtra("cityPos", pos);
+                    Intent i = MainActivity.newIntent(getActivity(),pos);
+
                     startActivity(i);
                     getActivity().finish();
                 }
@@ -79,23 +82,15 @@ public class CityListFragment extends Fragment {
                 recyclerView.scrollToPosition(0);
                 break;
             case 233:
-                PublicMethod.ShowTips(getContext(), "网络异常");
+                Utils.ShowTips(getContext(), "网络异常");
             default:
                 break;
         }
     }
 
     @Override
-    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
-        Log.d("life", "onActivityCreated");
-
-    }
-
-    @Override
     public void onResume() {
         super.onResume();
-        Log.d("life", "onResume");
     }
 
     @Override

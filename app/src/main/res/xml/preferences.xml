@@ -13,17 +13,7 @@
             android:widgetLayout="@layout/switch_layout"
             android:summary="定位可能会耗费少量流量"
             android:title="开启定位"/>
-        <CheckBoxPreference
-            android:key="@string/save_noti_mode"
-            android:layout="@layout/preference_item"
-            android:widgetLayout="@layout/switch_layout"
-            android:summary="看着通知栏很烦?关了它！"
-            android:title="开启通知栏"/>
-        <Preference
-            android:layout="@layout/preference_item"
-            android:key="@string/save_refl_mode"
-            android:summary="设置通知栏的更新频率"
-            android:title="刷新频率" />
+
         <Preference
             android:layout="@layout/preference_item"
             android:summary="删除已缓存天气数据"
@@ -37,9 +27,6 @@
             android:layout="@layout/preference_item"
             android:summary="V 1.0"
             android:title="当前版本" />
-        <Preference
-            android:layout="@layout/preference_item"
-            android:summary="更换整体主题颜色"
-            android:title="主题颜色" />
+
     </PreferenceCategory>
 </PreferenceScreen>

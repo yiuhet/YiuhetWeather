@@ -30,11 +30,11 @@
             android:layout_marginBottom="8dp"
             app:layout_constraintTop_toTopOf="parent"
             android:layout_marginTop="8dp"
-            app:layout_constraintVertical_bias="0.73"
-            android:layout_marginRight="8dp"
-            app:layout_constraintRight_toRightOf="parent"
-            android:layout_marginLeft="8dp"
-            app:layout_constraintLeft_toLeftOf="parent" />
+            app:layout_constraintVertical_bias="0.765"
+            android:layout_marginLeft="30dp"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toLeftOf="@+id/text_show_oc"
+            android:layout_marginRight="8dp" />
 
         <TextView
             android:id="@+id/text_show_oc"
@@ -49,11 +49,11 @@
             android:layout_marginBottom="8dp"
             app:layout_constraintTop_toTopOf="parent"
             android:layout_marginTop="6dp"
-            android:layout_marginLeft="8dp"
+            android:layout_marginLeft="108dp"
             app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintVertical_bias="0.32"
-            app:layout_constraintRight_toLeftOf="@+id/text_show_info"
-            android:layout_marginRight="8dp" />
+            app:layout_constraintVertical_bias="0.342"
+            android:layout_marginRight="8dp"
+            app:layout_constraintRight_toRightOf="parent" />
 
         <TextView
             android:id="@+id/text_show_min"

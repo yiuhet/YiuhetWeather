@@ -3,13 +3,14 @@ package com.example.yiuhet.first_weather.model;
 import com.google.gson.Gson;
 import com.google.gson.annotations.SerializedName;
 
+import java.io.Serializable;
 import java.util.List;
 
 /**
  * Created by yiuhet on 2017/3/24.
  */
 
-public class WeatherInfo {
+public class WeatherInfo implements Serializable{
 
     /**
      * aqi : {"city":{"aqi":"58","co":"1","no2":"41","o3":"108","pm10":"56","pm25":"41","qlty":"良","so2":"12"}}
